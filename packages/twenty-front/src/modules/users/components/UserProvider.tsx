@@ -17,8 +17,7 @@ export const UserProvider = ({ children }: React.PropsWithChildren) => {
 
   return !isCurrentUserLoaded &&
     !isMatchingLocation(location, AppPath.Verify) &&
-    !isMatchingLocation(location, AppPath.VerifyEmail) &&
-    !isMatchingLocation(location, AppPath.CreateWorkspace) ? (
+    !isMatchingLocation(location, AppPath.VerifyEmail) ? (
     <UserOrMetadataLoader />
   ) : (
     <UserContext.Provider

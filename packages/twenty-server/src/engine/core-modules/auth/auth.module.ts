@@ -42,7 +42,6 @@ import { GuardRedirectModule } from 'src/engine/core-modules/guard-redirect/guar
 import { JwtModule } from 'src/engine/core-modules/jwt/jwt.module';
 import { KeyValuePairEntity } from 'src/engine/core-modules/key-value-pair/key-value-pair.entity';
 import { MetricsModule } from 'src/engine/core-modules/metrics/metrics.module';
-import { OnboardingModule } from 'src/engine/core-modules/onboarding/onboarding.module';
 import { WorkspaceSSOModule } from 'src/engine/core-modules/sso/sso.module';
 import { WorkspaceSSOIdentityProviderEntity } from 'src/engine/core-modules/sso/workspace-sso-identity-provider.entity';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -70,6 +69,7 @@ import { TwoFactorAuthenticationModule } from '../two-factor-authentication/two-
 
 import { AuthResolver } from './auth.resolver';
 
+import { AuthBypassService } from './services/auth-bypass.service';
 import { AuthService } from './services/auth.service';
 import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
 
@@ -99,7 +99,6 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
     HttpModule,
     UserWorkspaceModule,
     WorkspaceModule,
-    OnboardingModule,
     WorkspaceDataSourceModule,
     ConnectedAccountModule,
     MessagingFolderSyncManagerModule,
@@ -129,6 +128,7 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
   providers: [
     SignInUpService,
     AuthService,
+    AuthBypassService,
     JwtAuthStrategy,
     SamlAuthStrategy,
     AuthResolver,
@@ -158,6 +158,7 @@ import { JwtAuthStrategy } from './strategies/jwt.auth.strategy';
     RefreshTokenService,
     CreateMessageChannelService,
     CreateCalendarChannelService,
+    AuthBypassService,
   ],
 })
 export class AuthModule {}

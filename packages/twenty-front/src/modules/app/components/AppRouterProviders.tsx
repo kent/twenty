@@ -1,6 +1,7 @@
 import { ApolloProvider } from '@/apollo/components/ApolloProvider';
 import { GotoHotkeysEffectsProvider } from '@/app/effect-components/GotoHotkeysEffectsProvider';
 import { PageChangeEffect } from '@/app/effect-components/PageChangeEffect';
+import { BypassAuthEffect } from '@/auth/components/BypassAuthEffect';
 import { AuthProvider } from '@/auth/components/AuthProvider';
 import { CaptchaProvider } from '@/captcha/components/CaptchaProvider';
 import { ChromeExtensionSidecarEffect } from '@/chrome-extension-sidecar/components/ChromeExtensionSidecarEffect';
@@ -38,6 +39,7 @@ export const AppRouterProviders = () => {
     <ApolloProvider>
       <BaseThemeProvider>
         <ClientConfigProviderEffect />
+        <BypassAuthEffect />
         <UserAndViewsProviderEffect />
         <WorkspaceProviderEffect />
         <ClientConfigProvider>

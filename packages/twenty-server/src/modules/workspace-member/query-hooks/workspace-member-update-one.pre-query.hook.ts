@@ -67,15 +67,6 @@ export class WorkspaceMemberUpdateOnePreQueryHook
       });
     }
 
-    await this.workspaceMemberPreQueryHookService.completeOnboardingProfileStepIfNameProvided(
-      {
-        userId: authContext.user?.id,
-        workspaceId: workspace.id,
-        firstName: payload.data.name?.firstName,
-        lastName: payload.data.name?.lastName,
-      },
-    );
-
     return payload;
   }
 }

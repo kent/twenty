@@ -10,7 +10,6 @@ import { FeatureFlagModule } from 'src/engine/core-modules/feature-flag/feature-
 import { FileUploadModule } from 'src/engine/core-modules/file/file-upload/file-upload.module';
 import { FileModule } from 'src/engine/core-modules/file/file.module';
 import { KeyValuePairEntity } from 'src/engine/core-modules/key-value-pair/key-value-pair.entity';
-import { OnboardingModule } from 'src/engine/core-modules/onboarding/onboarding.module';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserWorkspaceModule } from 'src/engine/core-modules/user-workspace/user-workspace.module';
 import { WorkspaceMemberTranspiler } from 'src/engine/core-modules/user/services/workspace-member-transpiler.service';
@@ -43,7 +42,6 @@ import { UserService } from './services/user.service';
     DataSourceModule,
     FileUploadModule,
     WorkspaceModule,
-    OnboardingModule,
     TypeOrmModule.forFeature([KeyValuePairEntity, UserWorkspaceEntity]),
     UserVarsModule,
     UserWorkspaceModule,

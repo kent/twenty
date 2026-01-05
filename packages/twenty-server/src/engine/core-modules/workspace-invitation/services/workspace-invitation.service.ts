@@ -24,7 +24,6 @@ import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspac
 import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { FileService } from 'src/engine/core-modules/file/services/file.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
-import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -46,7 +45,6 @@ export class WorkspaceInvitationService {
     private readonly userWorkspaceRepository: Repository<UserWorkspaceEntity>,
     private readonly twentyConfigService: TwentyConfigService,
     private readonly emailService: EmailService,
-    private readonly onboardingService: OnboardingService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly i18nService: I18nService,
     private readonly fileService: FileService,
@@ -346,16 +344,6 @@ export class WorkspaceInvitationService {
         });
       }
     }
-
-    await this.onboardingService.setOnboardingInviteTeamPending({
-      workspaceId: workspace.id,
-      value: false,
-    });
-
-    await this.onboardingService.setOnboardingBookOnboardingPending({
-      workspaceId: workspace.id,
-      value: true,
-    });
 
     const result = invitationsPr.reduce<{
       errors: string[];

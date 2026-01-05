@@ -27,10 +27,6 @@ import {
 } from 'src/engine/core-modules/auth/auth.exception';
 import { AvailableWorkspaces } from 'src/engine/core-modules/auth/dto/available-workspaces.output';
 import { OnboardingStatus } from 'src/engine/core-modules/onboarding/enums/onboarding-status.enum';
-import {
-  OnboardingService,
-  OnboardingStepKeys,
-} from 'src/engine/core-modules/onboarding/onboarding.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { buildTwoFactorAuthenticationMethodSummary } from 'src/engine/core-modules/two-factor-authentication/utils/two-factor-authentication-method.presenter';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -89,7 +85,6 @@ export class UserResolver {
     private readonly userRepository: Repository<UserEntity>,
     private readonly userService: UserService,
     private readonly twentyConfigService: TwentyConfigService,
-    private readonly onboardingService: OnboardingService,
     private readonly userVarService: UserVarsService,
     @InjectRepository(UserWorkspaceEntity)
     private readonly userWorkspaceRepository: Repository<UserWorkspaceEntity>,
@@ -198,7 +193,6 @@ export class UserResolver {
     });
 
     const userVarAllowList: string[] = [
-      OnboardingStepKeys.ONBOARDING_CONNECT_ACCOUNT_PENDING,
       AccountsToReconnectKeys.ACCOUNTS_TO_RECONNECT_INSUFFICIENT_PERMISSIONS,
       AccountsToReconnectKeys.ACCOUNTS_TO_RECONNECT_EMAIL_ALIASES,
     ];
@@ -446,13 +440,12 @@ export class UserResolver {
     nullable: true,
   })
   async onboardingStatus(
-    @Parent() user: UserEntity,
     @AuthWorkspace({ allowUndefined: true })
     workspace: WorkspaceEntity | undefined,
   ): Promise<OnboardingStatus | null> {
     if (!workspace) return null;
 
-    return this.onboardingService.getOnboardingStatus(user, workspace);
+    return OnboardingStatus.COMPLETED;
   }
 
   @ResolveField(() => WorkspaceEntity, {

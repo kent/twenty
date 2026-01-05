@@ -22,7 +22,6 @@ export const USER_QUERY_FRAGMENT = gql`
     canAccessFullAdminPanel
     canImpersonate
     supportUserHash
-    onboardingStatus
     workspaceMember {
       ...WorkspaceMemberQueryFragment
     }

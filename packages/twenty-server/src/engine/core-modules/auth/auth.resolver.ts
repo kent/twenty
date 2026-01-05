@@ -9,6 +9,7 @@ import { assertIsDefinedOrThrow, isDefined } from 'twenty-shared/utils';
 import { Repository } from 'typeorm';
 import { PermissionFlagType } from 'twenty-shared/constants';
 
+import { AuthBypassService } from 'src/engine/core-modules/auth/services/auth-bypass.service';
 import { ApiKeyTokenInput } from 'src/engine/core-modules/auth/dto/api-key-token.input';
 import { AppTokenInput } from 'src/engine/core-modules/auth/dto/app-token.input';
 import { AuthorizeAppOutput } from 'src/engine/core-modules/auth/dto/authorize-app.dto';
@@ -124,6 +125,7 @@ export class AuthResolver {
     private sSOService: SSOService,
     private readonly auditService: AuditService,
     private readonly permissionsService: PermissionsService,
+    private readonly authBypassService: AuthBypassService,
   ) {}
 
   @UseGuards(CaptchaGuard, PublicEndpointGuard, NoPermissionGuard)
@@ -857,5 +859,13 @@ export class AuthResolver {
     return this.resetPasswordService.validatePasswordResetToken(
       args.passwordResetToken,
     );
+  }
+
+  @Query(() => AuthTokens)
+  @UseGuards(PublicEndpointGuard, NoPermissionGuard)
+  async getBypassAuthTokens(): Promise<AuthTokens> {
+    const tokens = await this.authBypassService.generateBypassAuthTokens();
+
+    return { tokens };
   }
 }

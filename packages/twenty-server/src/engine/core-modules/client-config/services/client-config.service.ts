@@ -191,6 +191,7 @@ export class ClientConfigService {
       calendarBookingPageId: isNonEmptyString(calendarBookingPageId)
         ? calendarBookingPageId
         : undefined,
+      authBypassEnabled: true,
     };
 
     return clientConfig;

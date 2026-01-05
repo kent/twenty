@@ -1,6 +1,7 @@
 import { aiModelsState } from '@/client-config/states/aiModelsState';
 import { apiConfigState } from '@/client-config/states/apiConfigState';
 import { appVersionState } from '@/client-config/states/appVersionState';
+import { authBypassEnabledState } from '@/client-config/states/authBypassEnabledState';
 import { authProvidersState } from '@/client-config/states/authProvidersState';
 import { billingState } from '@/client-config/states/billingState';
 import { calendarBookingPageIdState } from '@/client-config/states/calendarBookingPageIdState';
@@ -112,6 +113,8 @@ export const useClientConfig = (): UseClientConfigResult => {
 
   const setAppVersion = useSetRecoilState(appVersionState);
 
+  const setAuthBypassEnabled = useSetRecoilState(authBypassEnabledState);
+
   const fetchClientConfig = useCallback(async () => {
     setClientConfigApiStatus((prev) => ({
       ...prev,
@@ -184,6 +187,7 @@ export const useClientConfig = (): UseClientConfigResult => {
       setCalendarBookingPageId(clientConfig?.calendarBookingPageId ?? null);
       setIsImapSmtpCaldavEnabled(clientConfig?.isImapSmtpCaldavEnabled);
       setIsEmailingDomainsEnabled(clientConfig?.isEmailingDomainsEnabled);
+      setAuthBypassEnabled(clientConfig?.authBypassEnabled ?? false);
     } catch (err) {
       const error =
         err instanceof Error ? err : new Error('Failed to fetch client config');
@@ -217,6 +221,7 @@ export const useClientConfig = (): UseClientConfigResult => {
     setIsImapSmtpCaldavEnabled,
     setIsMultiWorkspaceEnabled,
     setIsEmailingDomainsEnabled,
+    setAuthBypassEnabled,
     setLabPublicFeatureFlags,
     setMicrosoftCalendarEnabled,
     setMicrosoftMessagingEnabled,

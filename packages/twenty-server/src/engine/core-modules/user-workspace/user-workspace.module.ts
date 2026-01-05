@@ -9,7 +9,6 @@ import { TokenModule } from 'src/engine/core-modules/auth/token/token.module';
 import { WorkspaceDomainsModule } from 'src/engine/core-modules/domain/workspace-domains/workspace-domains.module';
 import { FileUploadModule } from 'src/engine/core-modules/file/file-upload/file-upload.module';
 import { FileModule } from 'src/engine/core-modules/file/file.module';
-import { OnboardingModule } from 'src/engine/core-modules/onboarding/onboarding.module';
 import { UploadProfilePicturePermissionGuard } from 'src/engine/core-modules/user-workspace/guards/upload-profile-picture-permission.guard';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserWorkspaceResolver } from 'src/engine/core-modules/user-workspace/user-workspace.resolver';
@@ -48,7 +47,6 @@ import { WorkspaceDataSourceModule } from 'src/engine/workspace-datasource/works
         FileModule,
         TokenModule,
         PermissionsModule,
-        OnboardingModule,
       ],
       services: [UserWorkspaceService],
     }),

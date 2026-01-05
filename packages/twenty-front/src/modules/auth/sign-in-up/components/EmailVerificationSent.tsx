@@ -7,10 +7,10 @@ import {
   SignInUpStep,
   signInUpStepState,
 } from '@/auth/states/signInUpStepState';
-import { OnboardingModalCircularIcon } from '@/onboarding/components/OnboardingModalCircularIcon';
 import { t } from '@lingui/core/macro';
 import { useSetRecoilState } from 'recoil';
 import {
+  type IconComponent,
   IconGmail,
   IconMail,
   IconMailX,
@@ -81,6 +81,22 @@ const StyledDot = styled.div`
   height: 2px;
   width: 2px;
 `;
+
+const StyledCircularIcon = styled.div`
+  align-items: center;
+  background: ${({ theme }) => theme.background.tertiary};
+  border-radius: 50%;
+  display: flex;
+  height: 48px;
+  justify-content: center;
+  width: 48px;
+`;
+
+const CircularIcon = ({ Icon }: { Icon: IconComponent }) => (
+  <StyledCircularIcon>
+    <Icon size={24} />
+  </StyledCircularIcon>
+);
 
 export const EmailVerificationSent = ({
   email,
@@ -156,7 +172,7 @@ export const EmailVerificationSent = ({
   return (
     <StyledContainer>
       <AnimatedEaseIn>
-        <OnboardingModalCircularIcon Icon={Icon} />
+        <CircularIcon Icon={Icon} />
       </AnimatedEaseIn>
 
       <StyledTextContainer>

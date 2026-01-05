@@ -6,7 +6,6 @@ import { AppTokenEntity } from 'src/engine/core-modules/app-token/app-token.enti
 import { WorkspaceDomainsModule } from 'src/engine/core-modules/domain/workspace-domains/workspace-domains.module';
 import { FeatureFlagModule } from 'src/engine/core-modules/feature-flag/feature-flag.module';
 import { FileModule } from 'src/engine/core-modules/file/file.module';
-import { OnboardingModule } from 'src/engine/core-modules/onboarding/onboarding.module';
 import { ThrottlerModule } from 'src/engine/core-modules/throttler/throttler.module';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { WorkspaceInvitationService } from 'src/engine/core-modules/workspace-invitation/services/workspace-invitation.service';
@@ -23,7 +22,6 @@ import { PermissionsModule } from 'src/engine/metadata-modules/permissions/permi
       WorkspaceEntity,
     ]),
     FileModule,
-    OnboardingModule,
     PermissionsModule,
     FeatureFlagModule,
     ThrottlerModule,

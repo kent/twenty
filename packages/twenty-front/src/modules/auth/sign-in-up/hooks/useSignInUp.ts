@@ -158,7 +158,7 @@ export const useSignInUp = (form: UseFormReturn<Form>) => {
         }
 
         const verifyEmailRedirectPath = buildAppPathWithQueryParams(
-          AppPath.PlanRequired,
+          AppPath.Index,
           await buildSearchParamsFromUrlSyncedStates(),
         );
 

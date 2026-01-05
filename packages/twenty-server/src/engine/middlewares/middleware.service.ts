@@ -1,11 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, Logger } from '@nestjs/common';
 
 import { type Request, type Response } from 'express';
-import { type APP_LOCALES, SOURCE_LOCALE } from 'twenty-shared/translations';
 import { isDefined } from 'twenty-shared/utils';
 
 import { AuthException } from 'src/engine/core-modules/auth/auth.exception';
 import { AuthGraphqlApiExceptionFilter } from 'src/engine/core-modules/auth/filters/auth-graphql-api-exception.filter';
+import { AuthBypassService } from 'src/engine/core-modules/auth/services/auth-bypass.service';
 import { AccessTokenService } from 'src/engine/core-modules/auth/token/services/access-token.service';
 import { getAuthExceptionRestStatus } from 'src/engine/core-modules/auth/utils/get-auth-exception-rest-status.util';
 import { ExceptionHandlerService } from 'src/engine/core-modules/exception-handler/exception-handler.service';
@@ -24,6 +24,8 @@ import { type CustomException } from 'src/utils/custom-exception';
 
 @Injectable()
 export class MiddlewareService {
+  private readonly logger = new Logger(MiddlewareService.name);
+
   constructor(
     private readonly accessTokenService: AccessTokenService,
     private readonly workspaceStorageCacheService: WorkspaceCacheStorageService,
@@ -31,6 +33,7 @@ export class MiddlewareService {
     private readonly dataSourceService: DataSourceService,
     private readonly exceptionHandlerService: ExceptionHandlerService,
     private readonly jwtWrapperService: JwtWrapperService,
+    private readonly authBypassService: AuthBypassService,
   ) {}
 
   public isTokenPresent(request: Request): boolean {
@@ -99,7 +102,16 @@ export class MiddlewareService {
   }
 
   public async hydrateRestRequest(request: Request) {
-    const data = await this.accessTokenService.validateTokenByRequest(request);
+    // Auth bypass: if no token present, use bypass auth context
+    let data;
+
+    if (!this.isTokenPresent(request)) {
+      this.logger.debug('No token present, using bypass auth context');
+      data = await this.authBypassService.getBypassAuthContext();
+    } else {
+      data = await this.accessTokenService.validateTokenByRequest(request);
+    }
+
     const metadataVersion = data.workspace
       ? await this.workspaceStorageCacheService.getMetadataVersion(
           data.workspace.id,
@@ -120,15 +132,16 @@ export class MiddlewareService {
   }
 
   public async hydrateGraphqlRequest(request: Request) {
-    if (!this.isTokenPresent(request)) {
-      request.locale =
-        (request.headers['x-locale'] as keyof typeof APP_LOCALES) ??
-        SOURCE_LOCALE;
+    // Auth bypass: if no token present, use bypass auth context
+    let data;
 
-      return;
+    if (!this.isTokenPresent(request)) {
+      this.logger.debug('No token present, using bypass auth context');
+      data = await this.authBypassService.getBypassAuthContext();
+    } else {
+      data = await this.accessTokenService.validateTokenByRequest(request);
     }
 
-    const data = await this.accessTokenService.validateTokenByRequest(request);
     const metadataVersion = data.workspace
       ? await this.workspaceStorageCacheService.getMetadataVersion(
           data.workspace.id,

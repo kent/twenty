@@ -2,7 +2,6 @@ import {
   type ModalSize,
   type ModalVariants,
 } from '@/ui/layout/modal/components/Modal';
-import { AppPath } from 'twenty-shared/types';
 
 type AuthModalConfigType = {
   size: ModalSize;
@@ -18,10 +17,5 @@ export const AUTH_MODAL_CONFIG: {
     size: 'medium',
     variant: 'primary',
     showScrollWrapper: true,
-  },
-  [AppPath.BookCall]: {
-    size: 'extraLarge',
-    variant: 'transparent',
-    showScrollWrapper: false,
   },
 };

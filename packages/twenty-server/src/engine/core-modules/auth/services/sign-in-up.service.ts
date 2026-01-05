@@ -28,9 +28,10 @@ import {
   type SignInUpNewUserPayload,
 } from 'src/engine/core-modules/auth/types/signInUp.type';
 import { SubdomainManagerService } from 'src/engine/core-modules/domain/subdomain-manager/services/subdomain-manager.service';
+import { FeatureFlagKey } from 'src/engine/core-modules/feature-flag/enums/feature-flag-key.enum';
+import { FeatureFlagService } from 'src/engine/core-modules/feature-flag/services/feature-flag.service';
 import { MetricsService } from 'src/engine/core-modules/metrics/metrics.service';
 import { MetricsKeys } from 'src/engine/core-modules/metrics/types/metrics-keys.type';
-import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
 import { UserService } from 'src/engine/core-modules/user/services/user.service';
@@ -40,8 +41,11 @@ import { AuthProviderEnum } from 'src/engine/core-modules/workspace/types/worksp
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { WorkspaceCacheService } from 'src/engine/workspace-cache/services/workspace-cache.service';
 import { WorkspaceEventEmitter } from 'src/engine/workspace-event-emitter/workspace-event-emitter';
+import { WorkspaceManagerService } from 'src/engine/workspace-manager/workspace-manager.service';
+import { DEFAULT_FEATURE_FLAGS } from 'src/engine/workspace-manager/workspace-sync-metadata/constants/default-feature-flags';
 import { getDomainNameByEmail } from 'src/utils/get-domain-name-by-email';
 import { isWorkEmail } from 'src/utils/is-work-email';
+import { extractVersionMajorMinorPatch } from 'src/utils/version/extract-version-major-minor-patch';
 
 @Injectable()
 // eslint-disable-next-line @nx/workspace-inject-workspace-repository
@@ -53,7 +57,6 @@ export class SignInUpService {
     private readonly workspaceRepository: Repository<WorkspaceEntity>,
     private readonly workspaceInvitationService: WorkspaceInvitationService,
     private readonly userWorkspaceService: UserWorkspaceService,
-    private readonly onboardingService: OnboardingService,
     private readonly workspaceEventEmitter: WorkspaceEventEmitter,
     private readonly httpService: HttpService,
     private readonly twentyConfigService: TwentyConfigService,
@@ -62,6 +65,8 @@ export class SignInUpService {
     private readonly metricsService: MetricsService,
     private readonly workspaceCacheService: WorkspaceCacheService,
     private readonly applicationService: ApplicationService,
+    private readonly workspaceManagerService: WorkspaceManagerService,
+    private readonly featureFlagService: FeatureFlagService,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
@@ -269,11 +274,6 @@ export class SignInUpService {
         canImpersonate: false,
       });
 
-      await this.activateOnboardingForUser({
-        user,
-        workspace: params.workspace,
-      });
-
       await this.userWorkspaceService.addUserToWorkspaceIfUserNotInWorkspace(
         user,
         params.workspace,
@@ -295,37 +295,6 @@ export class SignInUpService {
     );
 
     return user;
-  }
-
-  private async activateOnboardingForUser(
-    {
-      user,
-      workspace,
-    }: {
-      user: UserEntity;
-      workspace: WorkspaceEntity;
-    },
-    queryRunner?: QueryRunner,
-  ) {
-    await this.onboardingService.setOnboardingConnectAccountPending(
-      {
-        userId: user.id,
-        workspaceId: workspace.id,
-        value: true,
-      },
-      queryRunner,
-    );
-
-    if (user.firstName === '' && user.lastName === '') {
-      await this.onboardingService.setOnboardingCreateProfilePending(
-        {
-          userId: user.id,
-          workspaceId: workspace.id,
-          value: true,
-        },
-        queryRunner,
-      );
-    }
   }
 
   private async saveNewUser(
@@ -474,15 +443,21 @@ export class SignInUpService {
           queryRunner,
         );
 
+      // Derive workspace name from email domain
+      const domainName = getDomainNameByEmail(email);
+      const displayName = isWorkEmailFound
+        ? domainName.charAt(0).toUpperCase() + domainName.slice(1)
+        : 'My Workspace';
+
       const workspaceToCreate = this.workspaceRepository.create({
         id: workspaceId,
         subdomain: await this.subdomainManagerService.generateSubdomain(
           isWorkEmailFound ? { userEmail: email } : {},
         ),
         workspaceCustomApplicationId: workspaceCustomApplication.id,
-        displayName: '',
+        displayName,
         inviteHash: v4(),
-        activationStatus: WorkspaceActivationStatus.PENDING_CREATION,
+        activationStatus: WorkspaceActivationStatus.ONGOING_CREATION,
         logo,
       });
 
@@ -515,22 +490,49 @@ export class SignInUpService {
         queryRunner,
       );
 
-      await this.activateOnboardingForUser({ user, workspace }, queryRunner);
+      await queryRunner.commitTransaction();
 
-      await this.onboardingService.setOnboardingInviteTeamPending(
-        {
-          workspaceId: workspace.id,
-          value: true,
-        },
-        queryRunner,
+      // Enable default feature flags
+      const isV2SyncEnabled = this.twentyConfigService.get(
+        'IS_WORKSPACE_CREATION_V2_ENABLED',
       );
 
-      await queryRunner.commitTransaction();
+      await this.featureFlagService.enableFeatureFlags(
+        [
+          ...DEFAULT_FEATURE_FLAGS,
+          ...(isV2SyncEnabled
+            ? [FeatureFlagKey.IS_WORKSPACE_CREATION_V2_ENABLED]
+            : []),
+        ],
+        workspace.id,
+      );
+
+      // Initialize workspace (creates schema, metadata, prefills data)
+      await this.workspaceManagerService.init({
+        workspace,
+        userId: user.id,
+      });
+
+      // Create workspace member for the user
+      await this.userWorkspaceService.createWorkspaceMember(workspace.id, user);
+
+      // Mark workspace as active
+      const appVersion = this.twentyConfigService.get('APP_VERSION');
+
+      await this.workspaceRepository.update(workspace.id, {
+        activationStatus: WorkspaceActivationStatus.ACTIVE,
+        version: extractVersionMajorMinorPatch(appVersion),
+      });
+
       await this.workspaceCacheService.invalidateAndRecompute(workspaceId, [
         'flatApplicationMaps',
       ]);
 
-      return { user, workspace };
+      const activatedWorkspace = await this.workspaceRepository.findOneBy({
+        id: workspace.id,
+      });
+
+      return { user, workspace: activatedWorkspace ?? workspace };
     } catch (error) {
       await queryRunner.rollbackTransaction();
       throw error;

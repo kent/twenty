@@ -11,7 +11,6 @@ import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspac
 import { EmailService } from 'src/engine/core-modules/email/email.service';
 import { FileService } from 'src/engine/core-modules/file/services/file.service';
 import { I18nService } from 'src/engine/core-modules/i18n/i18n.service';
-import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { ThrottlerService } from 'src/engine/core-modules/throttler/throttler.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
@@ -42,7 +41,6 @@ describe('WorkspaceInvitationService', () => {
   let userWorkspaceRepository: Repository<UserWorkspaceEntity>;
   let twentyConfigService: TwentyConfigService;
   let emailService: EmailService;
-  let onboardingService: OnboardingService;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -78,13 +76,6 @@ describe('WorkspaceInvitationService', () => {
           provide: EmailService,
           useValue: {
             send: jest.fn(),
-          },
-        },
-        {
-          provide: OnboardingService,
-          useValue: {
-            setOnboardingInviteTeamPending: jest.fn(),
-            setOnboardingBookOnboardingPending: jest.fn(),
           },
         },
         {
@@ -133,7 +124,6 @@ describe('WorkspaceInvitationService', () => {
     );
     twentyConfigService = module.get<TwentyConfigService>(TwentyConfigService);
     emailService = module.get<EmailService>(EmailService);
-    onboardingService = module.get<OnboardingService>(OnboardingService);
   });
 
   it('should be defined', () => {
@@ -200,10 +190,6 @@ describe('WorkspaceInvitationService', () => {
         .spyOn(twentyConfigService, 'get')
         .mockReturnValue('http://localhost:3000');
       jest.spyOn(emailService, 'send').mockResolvedValue({} as any);
-      jest
-        .spyOn(onboardingService, 'setOnboardingInviteTeamPending')
-        .mockResolvedValue({} as any);
-
       const result = await service.sendInvitations(
         emails,
         workspace,
@@ -213,18 +199,6 @@ describe('WorkspaceInvitationService', () => {
       expect(result.success).toBe(true);
       expect(result.result.length).toBe(2);
       expect(emailService.send).toHaveBeenCalledTimes(2);
-      expect(
-        onboardingService.setOnboardingInviteTeamPending,
-      ).toHaveBeenCalledWith({
-        workspaceId: workspace.id,
-        value: false,
-      });
-      expect(
-        onboardingService.setOnboardingBookOnboardingPending,
-      ).toHaveBeenCalledWith({
-        workspaceId: workspace.id,
-        value: true,
-      });
     });
   });
 });

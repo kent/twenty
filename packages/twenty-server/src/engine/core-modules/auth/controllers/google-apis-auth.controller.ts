@@ -25,7 +25,6 @@ import { TransientTokenService } from 'src/engine/core-modules/auth/token/servic
 import { GoogleAPIsRequest } from 'src/engine/core-modules/auth/types/google-api-request.type';
 import { WorkspaceDomainsService } from 'src/engine/core-modules/domain/workspace-domains/services/workspace-domains.service';
 import { GuardRedirectService } from 'src/engine/core-modules/guard-redirect/services/guard-redirect.service';
-import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { WorkspaceEntity } from 'src/engine/core-modules/workspace/workspace.entity';
 import { NoPermissionGuard } from 'src/engine/guards/no-permission.guard';
@@ -38,7 +37,6 @@ export class GoogleAPIsAuthController {
     private readonly googleAPIsService: GoogleAPIsService,
     private readonly transientTokenService: TransientTokenService,
     private readonly twentyConfigService: TwentyConfigService,
-    private readonly onboardingService: OnboardingService,
     private readonly workspaceDomainsService: WorkspaceDomainsService,
     private readonly guardRedirectService: GuardRedirectService,
     @InjectRepository(WorkspaceEntity)
@@ -81,7 +79,7 @@ export class GoogleAPIsAuthController {
         messageVisibility,
       } = user;
 
-      const { workspaceMemberId, userId, workspaceId } =
+      const { workspaceMemberId, workspaceId } =
         await this.transientTokenService.verifyTransientToken(transientToken);
 
       if (!workspaceId) {
@@ -107,14 +105,6 @@ export class GoogleAPIsAuthController {
           calendarVisibility,
           messageVisibility,
         });
-
-      if (userId) {
-        await this.onboardingService.setOnboardingConnectAccountPending({
-          userId,
-          workspaceId,
-          value: false,
-        });
-      }
 
       if (!workspace) {
         throw new AuthException(

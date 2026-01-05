@@ -8,7 +8,6 @@ export type CurrentUser = Pick<
   | 'supportUserHash'
   | 'canAccessFullAdminPanel'
   | 'canImpersonate'
-  | 'onboardingStatus'
   | 'userVars'
   | 'firstName'
   | 'lastName'

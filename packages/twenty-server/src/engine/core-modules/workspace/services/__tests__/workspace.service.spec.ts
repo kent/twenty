@@ -16,7 +16,6 @@ import { FeatureFlagService } from 'src/engine/core-modules/feature-flag/service
 import { MessageQueue } from 'src/engine/core-modules/message-queue/message-queue.constants';
 import { type MessageQueueService } from 'src/engine/core-modules/message-queue/services/message-queue.service';
 import { getQueueToken } from 'src/engine/core-modules/message-queue/utils/get-queue-token.util';
-import { OnboardingService } from 'src/engine/core-modules/onboarding/onboarding.service';
 import { TwentyConfigService } from 'src/engine/core-modules/twenty-config/twenty-config.service';
 import { UserWorkspaceEntity } from 'src/engine/core-modules/user-workspace/user-workspace.entity';
 import { UserWorkspaceService } from 'src/engine/core-modules/user-workspace/user-workspace.service';
@@ -101,7 +100,6 @@ describe('WorkspaceService', () => {
           SubdomainManagerService,
           TwentyConfigService,
           EmailService,
-          OnboardingService,
           WorkspaceInvitationService,
           PermissionsService,
           FeatureFlagService,

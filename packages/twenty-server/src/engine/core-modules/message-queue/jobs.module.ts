@@ -26,7 +26,6 @@ import { DatabaseEventTriggerModule } from 'src/engine/metadata-modules/database
 import { ObjectMetadataModule } from 'src/engine/metadata-modules/object-metadata/object-metadata.module';
 import { ServerlessFunctionModule } from 'src/engine/metadata-modules/serverless-function/serverless-function.module';
 import { SubscriptionsModule } from 'src/engine/subscriptions/subscriptions.module';
-import { CleanOnboardingWorkspacesJob } from 'src/engine/workspace-manager/workspace-cleaner/crons/clean-onboarding-workspaces.job';
 import { CleanSuspendedWorkspacesJob } from 'src/engine/workspace-manager/workspace-cleaner/crons/clean-suspended-workspaces.job';
 import { CleanWorkspaceDeletionWarningUserVarsJob } from 'src/engine/workspace-manager/workspace-cleaner/jobs/clean-workspace-deletion-warning-user-vars.job';
 import { WorkspaceCleanerModule } from 'src/engine/workspace-manager/workspace-cleaner/workspace-cleaner.module';
@@ -72,7 +71,6 @@ import { WorkflowModule } from 'src/modules/workflow/workflow.module';
   ],
   providers: [
     CleanSuspendedWorkspacesJob,
-    CleanOnboardingWorkspacesJob,
     EmailSenderJob,
     UpdateSubscriptionQuantityJob,
     HandleWorkspaceMemberDeletedJob,

@@ -6,17 +6,7 @@ export enum AppPath {
   Invite = '/invite/:workspaceInviteHash',
   ResetPassword = '/reset-password/:passwordResetToken',
 
-  // Onboarding
-  CreateWorkspace = '/create/workspace',
-  CreateProfile = '/create/profile',
-  SyncEmails = '/sync/emails',
-  InviteTeam = '/invite-team',
-  PlanRequired = '/plan-required',
-  PlanRequiredSuccess = '/plan-required/payment-success',
-  BookCallDecision = '/book-call-decision',
-  BookCall = '/book-call',
-
-  // Onboarded
+  // Logged-in
   Index = '/',
   TasksPage = '/objects/tasks',
   OpportunitiesPage = '/objects/opportunities',
